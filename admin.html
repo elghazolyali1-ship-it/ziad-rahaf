@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة تحكم دعوة زياد ورهف</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=EB+Garamond:wght@400;500&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --gold: #c9ad7a;
+        --gold-dark: #a3844f;
+        --ink: #4a3624;
+        --muted: #8a7458;
+        --bg: #fffaf2;
+        --card: #f9e6d4;
+    }
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        font-family: 'EB Garamond', serif;
+        background: var(--bg);
+        color: var(--ink);
+        min-height: 100vh;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 40px 20px 80px; }
+    h1 {
+        font-family: 'Amiri', serif;
+        font-weight: 700;
+        font-size: 28px;
+        text-align: center;
+        margin-bottom: 6px;
+    }
+    .sub { text-align: center; color: var(--muted); margin-bottom: 40px; font-size: 15px; }
+
+    #loginScreen { max-width: 380px; margin: 60px auto 0; }
+    .card {
+        background: var(--card);
+        border-radius: 16px;
+        padding: 28px 24px;
+        box-shadow: 0 16px 34px rgba(74,59,40,0.14);
+    }
+    label { display: block; font-size: 14px; color: var(--muted); margin-bottom: 8px; }
+    input[type="text"], input[type="password"] {
+        width: 100%;
+        border: 1px solid #d8c19a;
+        border-radius: 10px;
+        padding: 12px 14px;
+        font-family: 'EB Garamond', serif;
+        font-size: 15px;
+        color: var(--ink);
+        background: var(--bg);
+        margin-bottom: 16px;
+    }
+    button {
+        cursor: pointer;
+        border: 0;
+        border-radius: 10px;
+        font-family: 'EB Garamond', serif;
+        font-size: 15px;
+        letter-spacing: 0.3px;
+    }
+    .btn-primary {
+        width: 100%;
+        padding: 13px;
+        background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+        color: #fff;
+    }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+    .error-msg { color: #a33; font-size: 14px; margin-top: 10px; display: none; }
+
+    #dashboard { display: none; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; }
+    .logout-btn { background: transparent; border: 1px solid var(--gold); color: var(--ink); padding: 9px 16px; }
+
+    .add-guest-row { display: flex; gap: 10px; margin-bottom: 12px; }
+    .add-guest-row input { margin-bottom: 0; flex: 1; }
+    .add-guest-row button { padding: 0 20px; background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #fff; white-space: nowrap; }
+    .new-link-box {
+        display: none;
+        background: #fffaf2;
+        border: 1px dashed var(--gold);
+        border-radius: 10px;
+        padding: 12px 14px;
+        font-size: 14px;
+        margin-bottom: 30px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+    .new-link-box code { direction: ltr; unicode-bidi: plaintext; color: var(--gold-dark); }
+    .copy-btn { background: var(--gold-dark); color: #fff; padding: 6px 14px; font-size: 13px; flex-shrink: 0; }
+
+    table { width: 100%; border-collapse: collapse; background: var(--bg); border-radius: 14px; overflow: hidden; box-shadow: 0 10px 24px rgba(74,59,40,0.1); }
+    th, td { padding: 12px 14px; text-align: right; font-size: 14px; border-bottom: 1px solid #f0e2c9; }
+    th { background: var(--card); color: var(--muted); font-weight: 600; }
+    tr:last-child td { border-bottom: none; }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; }
+    .badge.pending { background: #eee; color: #777; }
+    .badge.yes { background: #dff3e3; color: #2e7d4f; }
+    .badge.no { background: #fde3e3; color: #b23a3a; }
+    .row-actions { display: flex; gap: 8px; }
+    .row-actions button { background: transparent; border: 1px solid #d8c19a; padding: 6px 10px; font-size: 13px; color: var(--ink); }
+    .row-actions button.danger { border-color: #e0a3a3; color: #a33; }
+    .link-cell { direction: ltr; unicode-bidi: plaintext; font-size: 13px; }
+    .empty-state { text-align: center; color: var(--muted); padding: 40px 0; }
+    .msg-cell { max-width: 220px; white-space: pre-wrap; word-break: break-word; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <h1>لوحة تحكم دعوة زياد ورهف</h1>
+    <div class="sub">إدارة المدعوين وردود الحضور</div>
+
+    <div id="loginScreen">
+        <div class="card">
+            <form id="loginForm">
+                <label>كلمة المرور</label>
+                <input type="password" id="loginPassword" autocomplete="current-password" required>
+                <button type="submit" class="btn-primary" id="loginBtn">تسجيل الدخول</button>
+                <div class="error-msg" id="loginError"></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="dashboard">
+        <div class="topbar">
+            <span>مرحباً بك</span>
+            <button class="logout-btn" id="logoutBtn"><i class="fa-solid fa-arrow-right-from-bracket"></i> تسجيل الخروج</button>
+        </div>
+
+        <div class="card" style="margin-bottom:30px;">
+            <label>إضافة مدعو جديد</label>
+            <div class="add-guest-row">
+                <input type="text" id="newGuestName" placeholder="اسم المدعو">
+                <button id="addGuestBtn"><i class="fa-solid fa-plus"></i> إضافة</button>
+            </div>
+            <div class="error-msg" id="addGuestError"></div>
+            <div class="new-link-box" id="newLinkBox">
+                <span>رابط الدعوة: <code id="newLinkText"></code></span>
+                <button class="copy-btn" id="copyNewLinkBtn">نسخ</button>
+            </div>
+        </div>
+
+        <table id="guestsTable">
+            <thead>
+                <tr>
+                    <th>الاسم</th>
+                    <th>رابط الدعوة</th>
+                    <th>الحالة</th>
+                    <th>الرسالة</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="guestsTbody"></tbody>
+        </table>
+        <div class="empty-state" id="emptyState" style="display:none;">لا يوجد مدعوون بعد</div>
+    </div>
+</div>
+
+<script>
+(function() {
+    var loginScreen = document.getElementById('loginScreen');
+    var dashboard = document.getElementById('dashboard');
+    var loginForm = document.getElementById('loginForm');
+    var loginError = document.getElementById('loginError');
+    var loginBtn = document.getElementById('loginBtn');
+
+    function showLogin(message) {
+        loginScreen.style.display = 'block';
+        dashboard.style.display = 'none';
+        if (message) {
+            loginError.textContent = message;
+            loginError.style.display = 'block';
+        }
+    }
+
+    function showDashboard() {
+        loginScreen.style.display = 'none';
+        dashboard.style.display = 'block';
+        loadGuests();
+    }
+
+    function attendingLabel(status) {
+        if (status === 'yes') return { text: 'حضور مؤكد', cls: 'yes' };
+        if (status === 'no') return { text: 'اعتذار', cls: 'no' };
+        return { text: 'بانتظار الرد', cls: 'pending' };
+    }
+
+    function renderGuests(guests) {
+        var tbody = document.getElementById('guestsTbody');
+        var empty = document.getElementById('emptyState');
+        tbody.innerHTML = '';
+        if (!guests.length) {
+            empty.style.display = 'block';
+            return;
+        }
+        empty.style.display = 'none';
+        guests.forEach(function(g) {
+            var tr = document.createElement('tr');
+            var status = attendingLabel(g.attending);
+            var fullLink = window.location.origin + g.link;
+            tr.innerHTML =
+                '<td>' + escapeHtml(g.name) + '</td>' +
+                '<td class="link-cell">' + escapeHtml(fullLink) + '</td>' +
+                '<td><span class="badge ' + status.cls + '">' + status.text + '</span></td>' +
+                '<td class="msg-cell">' + escapeHtml(g.message || '-') + '</td>' +
+                '<td class="row-actions">' +
+                    '<button data-action="copy" data-link="' + escapeHtml(fullLink) + '"><i class="fa-solid fa-copy"></i></button>' +
+                    '<button data-action="rename" data-code="' + escapeHtml(g.code) + '" data-name="' + escapeHtml(g.name) + '"><i class="fa-solid fa-pen"></i></button>' +
+                    '<button class="danger" data-action="delete" data-code="' + escapeHtml(g.code) + '"><i class="fa-solid fa-trash"></i></button>' +
+                '</td>';
+            tbody.appendChild(tr);
+        });
+    }
+
+    function escapeHtml(str) {
+        return String(str == null ? '' : str).replace(/[&<>"']/g, function(c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+    }
+
+    function loadGuests() {
+        fetch('/api/admin/guests')
+            .then(function(res) {
+                if (res.status === 401) { showLogin(); return null; }
+                return res.json();
+            })
+            .then(function(guests) { if (guests) renderGuests(guests); });
+    }
+
+    loginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        loginError.style.display = 'none';
+        loginBtn.disabled = true;
+        fetch('/api/admin/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: document.getElementById('loginPassword').value })
+        })
+        .then(function(res) { return res.json().then(function(body) { return { ok: res.ok, body: body }; }); })
+        .then(function(result) {
+            loginBtn.disabled = false;
+            if (!result.ok) {
+                loginError.textContent = 'كلمة المرور غير صحيحة';
+                loginError.style.display = 'block';
+                return;
+            }
+            showDashboard();
+        })
+        .catch(function() {
+            loginBtn.disabled = false;
+            loginError.textContent = 'تعذر الاتصال بالسيرفر';
+            loginError.style.display = 'block';
+        });
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+        fetch('/api/admin/logout', { method: 'POST' }).finally(function() {
+            showLogin();
+        });
+    });
+
+    document.getElementById('addGuestBtn').addEventListener('click', function() {
+        var input = document.getElementById('newGuestName');
+        var errEl = document.getElementById('addGuestError');
+        var name = input.value.trim();
+        errEl.style.display = 'none';
+        if (!name) return;
+        fetch('/api/admin/guests', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name })
+        })
+        .then(function(res) { return res.json().then(function(body) { return { ok: res.ok, body: body }; }); })
+        .then(function(result) {
+            if (!result.ok) {
+                errEl.textContent = (result.body && result.body.error) || 'تعذر إضافة المدعو';
+                errEl.style.display = 'block';
+                return;
+            }
+            input.value = '';
+            var fullLink = window.location.origin + result.body.link;
+            var box = document.getElementById('newLinkBox');
+            document.getElementById('newLinkText').textContent = fullLink;
+            box.style.display = 'flex';
+            box.dataset.link = fullLink;
+            loadGuests();
+        })
+        .catch(function() {
+            errEl.textContent = 'تعذر الاتصال بالسيرفر';
+            errEl.style.display = 'block';
+        });
+    });
+
+    document.getElementById('copyNewLinkBtn').addEventListener('click', function() {
+        var link = document.getElementById('newLinkBox').dataset.link;
+        copyToClipboard(link);
+    });
+
+    function copyToClipboard(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).catch(function() { fallbackCopy(text); });
+        } else {
+            fallbackCopy(text);
+        }
+    }
+
+    function fallbackCopy(text) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta);
+    }
+
+    document.getElementById('guestsTbody').addEventListener('click', function(e) {
+        var btn = e.target.closest('button');
+        if (!btn) return;
+        var action = btn.dataset.action;
+
+        if (action === 'copy') {
+            copyToClipboard(btn.dataset.link);
+            return;
+        }
+
+        if (action === 'delete') {
+            var code = btn.dataset.code;
+            if (!window.confirm('هل تريد حذف هذا المدعو؟')) return;
+            fetch('/api/admin/guest?code=' + encodeURIComponent(code), { method: 'DELETE' })
+                .then(function() { loadGuests(); });
+            return;
+        }
+
+        if (action === 'rename') {
+            var currentCode = btn.dataset.code;
+            var currentName = btn.dataset.name;
+            var newName = window.prompt('اسم المدعو الجديد:', currentName);
+            if (!newName || !newName.trim() || newName.trim() === currentName) return;
+            fetch('/api/admin/guest?code=' + encodeURIComponent(currentCode), {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: newName.trim() })
+            }).then(function() { loadGuests(); });
+            return;
+        }
+    });
+
+    // check existing session on load
+    fetch('/api/admin/guests').then(function(res) {
+        if (res.ok) {
+            showDashboard();
+        } else {
+            showLogin();
+        }
+    }).catch(function() { showLogin(); });
+})();
+</script>
+</body>
+</html>

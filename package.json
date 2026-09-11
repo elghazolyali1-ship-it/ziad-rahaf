@@ -1,0 +1,9 @@
+{
+  "name": "ziad-rahaf-wedding-invitation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Wedding invitation site with per-guest personalized links, RSVP and admin dashboard.",
+  "dependencies": {
+    "mongodb": "^6.10.0"
+  }
+}
